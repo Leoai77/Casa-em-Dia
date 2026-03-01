@@ -35,9 +35,9 @@ export function Reports() {
 
   // Data for Monthly Evolution (Mocked for simplicity)
   const monthlyEvolution = [
-    { name: 'Set', gastos: 2800, pagamentos: 100000 },
-    { name: 'Out', gastos: 10300, pagamentos: 3500 },
-    { name: 'Nov', gastos: 4200, pagamentos: 3500 },
+    { name: 'Set', gastos: 0, pagamentos: 0 },
+    { name: 'Out', gastos: 0, pagamentos: 0 },
+    { name: 'Nov', gastos: 0, pagamentos: 0 },
     { name: 'Dez', gastos: 0, pagamentos: 0 },
   ];
 

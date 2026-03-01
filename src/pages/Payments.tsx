@@ -18,7 +18,7 @@ export function Payments() {
   const filteredPayments = payments.filter(p => filter === 'Todos' || p.status === filter);
 
   const totalPaid = payments.filter(p => p.status === 'Pago').reduce((acc, curr) => acc + curr.amount, 0);
-  const percentagePaid = (totalPaid / houseTotalValue) * 100;
+  const percentagePaid = houseTotalValue > 0 ? (totalPaid / houseTotalValue) * 100 : 0;
 
   return (
     <div className="space-y-6">

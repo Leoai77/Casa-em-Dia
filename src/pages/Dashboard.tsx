@@ -1,10 +1,10 @@
 import React from 'react';
 import { useData } from '@/context/DataContext';
-import { Home, DollarSign, TrendingUp, Users, ArrowUpRight, ArrowDownRight, Plus } from 'lucide-react';
+import { Home, DollarSign, TrendingUp, Users, ArrowUpRight, ArrowDownRight, Plus, Edit2 } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 
 export function Dashboard() {
-  const { data, addUser } = useData();
+  const { data, addUser, setHouseTotalValue } = useData();
   const { houseTotalValue, payments, expenses, users } = data;
 
   const totalPaid = payments.filter(p => p.status === 'Pago').reduce((acc, curr) => acc + curr.amount, 0);
@@ -22,10 +22,17 @@ export function Dashboard() {
     }
   };
 
+  const handleEditHouseValue = () => {
+    const value = window.prompt('Digite o novo valor total da casa:', houseTotalValue.toString());
+    if (value && !isNaN(Number(value))) {
+      setHouseTotalValue(Number(value));
+    }
+  };
+
   const monthlyData = [
-    { name: 'Set', total: 102800 },
-    { name: 'Out', total: 13800 },
-    { name: 'Nov', total: 7700 },
+    { name: 'Set', total: 0 },
+    { name: 'Out', total: 0 },
+    { name: 'Nov', total: 0 },
     { name: 'Dez', total: 0 },
   ];
 
@@ -44,26 +51,27 @@ export function Dashboard() {
           value={formatCurrency(houseTotalValue)} 
           icon={<Home className="w-5 h-5 text-blue-600" />} 
           trend="+0%" 
+          onEdit={handleEditHouseValue}
         />
         <Card 
           title="Total Já Pago" 
           value={formatCurrency(totalPaid)} 
           icon={<DollarSign className="w-5 h-5 text-green-600" />} 
-          trend={`+${((totalPaid / houseTotalValue) * 100).toFixed(1)}%`} 
+          trend={`+${houseTotalValue > 0 ? ((totalPaid / houseTotalValue) * 100).toFixed(1) : 0}%`} 
           trendUp={true}
         />
         <Card 
           title="Saldo Restante" 
           value={formatCurrency(remainingBalance)} 
           icon={<TrendingUp className="w-5 h-5 text-red-600" />} 
-          trend={`-${((remainingBalance / houseTotalValue) * 100).toFixed(1)}%`} 
+          trend={`-${houseTotalValue > 0 ? ((remainingBalance / houseTotalValue) * 100).toFixed(1) : 0}%`} 
           trendUp={false}
         />
         <Card 
           title="Gasto na Reforma" 
           value={formatCurrency(totalRenovation)} 
           icon={<Users className="w-5 h-5 text-purple-600" />} 
-          trend="+12% este mês" 
+          trend="+0% este mês" 
         />
       </div>
 
@@ -132,9 +140,18 @@ export function Dashboard() {
   );
 }
 
-function Card({ title, value, icon, trend, trendUp }: { title: string, value: string, icon: React.ReactNode, trend: string, trendUp?: boolean }) {
+function Card({ title, value, icon, trend, trendUp, onEdit }: { title: string, value: string, icon: React.ReactNode, trend: string, trendUp?: boolean, onEdit?: () => void }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between group relative">
+      {onEdit && (
+        <button 
+          onClick={onEdit}
+          className="absolute top-6 right-16 p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md opacity-0 group-hover:opacity-100 transition-all"
+          title="Editar valor"
+        >
+          <Edit2 className="w-4 h-4" />
+        </button>
+      )}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-medium text-gray-500">{title}</h3>
         <div className="p-2 bg-gray-50 rounded-lg">

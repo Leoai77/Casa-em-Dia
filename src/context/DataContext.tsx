@@ -1,25 +1,30 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { AppState } from '../types';
-import { mockData } from '../mockData';
 
 interface DataContextType {
   data: AppState;
   resetData: () => void;
   addUser: (name: string) => void;
+  setHouseTotalValue: (value: number) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export function DataProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useState<AppState>(mockData);
+  const [data, setData] = useState<AppState>({
+    houseTotalValue: 0,
+    users: [],
+    expenses: [],
+    payments: []
+  });
 
   const resetData = () => {
     if (window.confirm('Tem certeza que deseja zerar todos os lançamentos e irmãos? Esta ação não pode ser desfeita.')) {
       setData({
-        ...data,
+        houseTotalValue: 0,
+        users: [],
         expenses: [],
-        payments: [],
-        users: []
+        payments: []
       });
     }
   };
@@ -36,8 +41,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const setHouseTotalValue = (value: number) => {
+    setData({
+      ...data,
+      houseTotalValue: value
+    });
+  };
+
   return (
-    <DataContext.Provider value={{ data, resetData, addUser }}>
+    <DataContext.Provider value={{ data, resetData, addUser, setHouseTotalValue }}>
       {children}
     </DataContext.Provider>
   );
