@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { AppState } from '../types';
 
 interface DataContextType {
@@ -10,22 +10,35 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
+const STORAGE_KEY = 'casa-em-dia-data';
+
+const defaultState: AppState = {
+  houseTotalValue: 0,
+  users: [],
+  expenses: [],
+  payments: []
+};
+
 export function DataProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useState<AppState>({
-    houseTotalValue: 0,
-    users: [],
-    expenses: [],
-    payments: []
+  const [data, setData] = useState<AppState>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error('Failed to parse saved data', e);
+      }
+    }
+    return defaultState;
   });
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }, [data]);
 
   const resetData = () => {
     if (window.confirm('Tem certeza que deseja zerar todos os lançamentos e irmãos? Esta ação não pode ser desfeita.')) {
-      setData({
-        houseTotalValue: 0,
-        users: [],
-        expenses: [],
-        payments: []
-      });
+      setData(defaultState);
     }
   };
 
