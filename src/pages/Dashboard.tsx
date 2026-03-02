@@ -3,7 +3,7 @@ import { useData } from '@/context/DataContext';
 import { Home, DollarSign, TrendingUp, Users, ArrowUpRight, ArrowDownRight, Plus, Edit2 } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 
-export function Dashboard() {
+export function Dashboard({ onNavigate }: { onNavigate?: (page: string) => void }) {
   const { data, addUser, setHouseTotalValue } = useData();
   const { houseTotalValue, payments, expenses, users } = data;
 
@@ -40,9 +40,20 @@ export function Dashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Dashboard</h1>
-        <button className="bg-[#1E3A8A] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors shadow-sm">
-          Novo Lançamento
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={() => onNavigate?.('expenses')}
+            className="bg-[#1E3A8A] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors shadow-sm"
+          >
+            Novo Gasto
+          </button>
+          <button 
+            onClick={() => onNavigate?.('payments')}
+            className="bg-[#10B981] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors shadow-sm"
+          >
+            Nova Parcela
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

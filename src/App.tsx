@@ -18,7 +18,7 @@ export default function App() {
   const renderPage = () => {
     switch (currentPage) {
       case 'dashboard':
-        return <Dashboard />;
+        return <Dashboard onNavigate={setCurrentPage} />;
       case 'expenses':
         return <Expenses />;
       case 'payments':
@@ -28,7 +28,7 @@ export default function App() {
       case 'reports':
         return <Reports />;
       default:
-        return <Dashboard />;
+        return <Dashboard onNavigate={setCurrentPage} />;
     }
   };
 

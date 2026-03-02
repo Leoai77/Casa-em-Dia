@@ -1,11 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { AppState } from '../types';
+import { AppState, Expense, HousePayment } from '../types';
 
 interface DataContextType {
   data: AppState;
   resetData: () => void;
   addUser: (name: string) => void;
   setHouseTotalValue: (value: number) => void;
+  addExpense: (expense: Omit<Expense, 'id'>) => void;
+  addPayment: (payment: Omit<HousePayment, 'id'>) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -61,8 +63,30 @@ export function DataProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const addExpense = (expense: Omit<Expense, 'id'>) => {
+    const newExpense = {
+      ...expense,
+      id: `e${Date.now()}`
+    };
+    setData({
+      ...data,
+      expenses: [...data.expenses, newExpense]
+    });
+  };
+
+  const addPayment = (payment: Omit<HousePayment, 'id'>) => {
+    const newPayment = {
+      ...payment,
+      id: `p${Date.now()}`
+    };
+    setData({
+      ...data,
+      payments: [...data.payments, newPayment]
+    });
+  };
+
   return (
-    <DataContext.Provider value={{ data, resetData, addUser, setHouseTotalValue }}>
+    <DataContext.Provider value={{ data, resetData, addUser, setHouseTotalValue, addExpense, addPayment }}>
       {children}
     </DataContext.Provider>
   );

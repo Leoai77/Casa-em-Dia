@@ -1,13 +1,24 @@
 import { useState } from 'react';
 import { useData } from '@/context/DataContext';
-import { Plus, Filter, Search, MoreVertical } from 'lucide-react';
+import { Plus, Filter, Search, MoreVertical, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { ExpenseCategory } from '@/types';
 
 export function Expenses() {
-  const { data } = useData();
+  const { data, addExpense } = useData();
   const { expenses, users } = data;
   const [searchTerm, setSearchTerm] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [newExpense, setNewExpense] = useState({
+    description: '',
+    amount: '',
+    date: new Date().toISOString().split('T')[0],
+    category: 'Material de Construção' as ExpenseCategory,
+    paidBy: users.length > 0 ? users[0].id : '',
+    paymentMethod: 'Pix'
+  });
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
@@ -20,6 +31,33 @@ export function Expenses() {
     expense.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newExpense.description || !newExpense.amount || !newExpense.paidBy) {
+      alert('Preencha os campos obrigatórios (Descrição, Valor e Responsável).');
+      return;
+    }
+    
+    addExpense({
+      description: newExpense.description,
+      amount: Number(newExpense.amount),
+      date: newExpense.date,
+      category: newExpense.category,
+      paidBy: newExpense.paidBy,
+      paymentMethod: newExpense.paymentMethod
+    });
+    
+    setIsModalOpen(false);
+    setNewExpense({
+      description: '',
+      amount: '',
+      date: new Date().toISOString().split('T')[0],
+      category: 'Material de Construção',
+      paidBy: users.length > 0 ? users[0].id : '',
+      paymentMethod: 'Pix'
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -27,11 +65,129 @@ export function Expenses() {
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Gastos da Reforma</h1>
           <p className="text-sm text-gray-500 mt-1">Gerencie todos os custos com a obra e mobília.</p>
         </div>
-        <button className="bg-[#1E3A8A] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors shadow-sm flex items-center gap-2">
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="bg-[#1E3A8A] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors shadow-sm flex items-center gap-2"
+        >
           <Plus className="w-4 h-4" />
           Novo Gasto
         </button>
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-gray-100">
+              <h2 className="text-lg font-semibold text-gray-900">Novo Gasto</h2>
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="p-1 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleSubmit} className="p-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+                <input 
+                  type="text" 
+                  required
+                  value={newExpense.description}
+                  onChange={e => setNewExpense({...newExpense, description: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Ex: Cimento e Areia"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Valor (R$)</label>
+                  <input 
+                    type="number" 
+                    required
+                    min="0"
+                    step="0.01"
+                    value={newExpense.amount}
+                    onChange={e => setNewExpense({...newExpense, amount: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="0.00"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Data</label>
+                  <input 
+                    type="date" 
+                    required
+                    value={newExpense.date}
+                    onChange={e => setNewExpense({...newExpense, date: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+                <select 
+                  value={newExpense.category}
+                  onChange={e => setNewExpense({...newExpense, category: e.target.value as ExpenseCategory})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="Material de Construção">Material de Construção</option>
+                  <option value="Mão de Obra">Mão de Obra</option>
+                  <option value="Documentação">Documentação</option>
+                  <option value="Mobília">Mobília</option>
+                  <option value="Outros">Outros</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Responsável (Quem pagou)</label>
+                <select 
+                  required
+                  value={newExpense.paidBy}
+                  onChange={e => setNewExpense({...newExpense, paidBy: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="" disabled>Selecione um irmão</option>
+                  {users.map(user => (
+                    <option key={user.id} value={user.id}>{user.name}</option>
+                  ))}
+                </select>
+                {users.length === 0 && (
+                  <p className="text-xs text-red-500 mt-1">Adicione irmãos no Dashboard primeiro.</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Forma de Pagamento</label>
+                <select 
+                  value={newExpense.paymentMethod}
+                  onChange={e => setNewExpense({...newExpense, paymentMethod: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="Pix">Pix</option>
+                  <option value="Cartão de Crédito">Cartão de Crédito</option>
+                  <option value="Transferência">Transferência</option>
+                  <option value="Boleto">Boleto</option>
+                  <option value="Dinheiro">Dinheiro</option>
+                </select>
+              </div>
+              <div className="pt-4 flex gap-3">
+                <button 
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  type="submit"
+                  disabled={users.length === 0}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Salvar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-4 justify-between items-center">
