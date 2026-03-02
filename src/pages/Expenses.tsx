@@ -75,9 +75,9 @@ export function Expenses() {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-            <div className="flex items-center justify-between p-4 border-b border-gray-100">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 sm:p-6">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md flex flex-col max-h-[90vh]">
+            <div className="flex items-center justify-between p-4 border-b border-gray-100 shrink-0">
               <h2 className="text-lg font-semibold text-gray-900">Novo Gasto</h2>
               <button 
                 onClick={() => setIsModalOpen(false)}
@@ -86,7 +86,7 @@ export function Expenses() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-4 space-y-4">
+            <form onSubmit={handleSubmit} className="p-4 space-y-4 overflow-y-auto">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
                 <input 
